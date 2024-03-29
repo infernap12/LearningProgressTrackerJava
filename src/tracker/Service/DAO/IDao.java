@@ -1,9 +1,8 @@
-package tracker;
+package tracker.Service.DAO;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface Dao<T> {
+public interface IDao<T> {
 
     T get(int id);
 
@@ -15,7 +14,5 @@ public interface Dao<T> {
 
     boolean delete(T t);
 
-    User get(String id);
-
-    T getByEmail(String email);
+    T get(String id);
 }

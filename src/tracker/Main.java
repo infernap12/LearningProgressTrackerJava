@@ -1,16 +1,34 @@
 package tracker;
 
+import tracker.Service.*;
+import tracker.Service.DAO.HashMapSubmissionDao;
+import tracker.Service.DAO.HashMapUserDao;
+import tracker.Service.DAO.ISubmissionDao;
+import tracker.Service.DAO.IUserDao;
+import tracker.Model.Course;
+import tracker.Model.Submission;
+import tracker.Model.User;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class Main {
 
-
+    public static final boolean IS_IN_MEMORY = true;
     public static final Scanner SCANNER = new Scanner(System.in);
-    static Dao<User> userDao = new hashMapUserDao();
+    static DataManager dataManager = new DataManager(IS_IN_MEMORY);
+    static ISubmissionDao submissionDao = new HashMapSubmissionDao();
+    static IUserDao userDao = new HashMapUserDao();
 
-    public static void main(String[] args) {
+    static {
+        submissionDao.setUserDao(userDao);
+        userDao.setSubmissionDao(submissionDao);
+    }
+
+    public static void
+    main(String[] args) {
         System.out.println("Learning Progress Tracker");
         mainMenu();
     }
@@ -47,11 +65,60 @@ public class Main {
                     }
 
                 }
+                case STATISTICS -> {
+                    statisticsMenu();
+                    System.out.println("Type the name of a course to see details or 'back' to quit");
+
+
+                }
+                case HELP -> printHelp();
                 case UNKNOWN -> System.out.println("Unknown command!");
                 case EMPTY -> System.out.println("No input");
             }
         }
     }
+
+    private static void statisticsMenu() {
+        System.out.println("Type the name of a course to see details or 'back' to quit");
+//        printStatistics();
+        while (true) {
+            String input = SCANNER.nextLine();
+            if (input.equalsIgnoreCase("BACK")) {
+                return;
+            }
+        }
+    }
+
+//    private static void printStatistics() {
+//        System.out.printf("Most popular: %s%n", submissionDao.getMostPopular());
+//        System.out.printf("Least popular: %s%n", submissionDao.getLeastPopular());
+//        System.out.printf("Highest activity: %s%n", submissionDao.getHighestActivity());
+//        System.out.printf("Lowest activity: %s%n", submissionDao.getLowestActivity());
+//        System.out.printf("Easiest course: %s%n", submissionDao.getEasiestCourse());
+//        System.out.printf("Hardest course: %s%n", submissionDao.getHardestCourse());
+//
+//        //use compar
+//        //test if 0, use all.
+//        String[] array = new String[5];
+//        Stream.of("Most popular: %s",
+//                "Least popular: %s",
+//                "Highest activity: %s",
+//                "Lowest activity: %s",
+//                "Easiest course: %s",
+//                "Hardest course: %s").forEach(x -> x.formatted(y -> {
+//                    switch(x) {
+//                        case "Most popular: %s"
+//                    }
+//        }) ){
+//        });
+//        System.out.printf("""
+//                Most popular: %s
+//                Least popular: %s
+//                Highest activity: %s
+//                Lowest activity: %s
+//                Easiest course: %s
+//                Hardest course: %s%n""", submissionDao.`);
+//    }
 
     private static void findMenu() {
         System.out.println("Enter an id or 'back' to return");
@@ -64,10 +131,10 @@ public class Main {
             if (user != null) {
                 System.out.printf("%s points: Java=%d; DSA=%d; Databases=%d; Spring=%d%n",
                         user.getId(),
-                        user.getPointsJava(),
-                        user.getPointsDataStructures(),
-                        user.getPointsDatabase(),
-                        user.getPointsSpring());
+                        submissionDao.getPoints(user, Course.JAVA),
+                        submissionDao.getPoints(user, Course.DSA),
+                        submissionDao.getPoints(user, Course.DATABASES),
+                        submissionDao.getPoints(user, Course.SPRING));
             } else {
                 System.out.printf("message: No student is found for id=%s%n", input);
             }
@@ -88,12 +155,7 @@ public class Main {
                     System.out.printf("No student is found for id=%s%n", arr[0]);
                     continue;
                 }
-
-                user.addPoints(Arrays.stream(input.split(" "))
-                        .skip(1)
-                        .mapToInt(Integer::parseInt)
-                        .toArray());
-                userDao.update(user);
+                submissionDao.add(new Submission(Arrays.stream(arr).mapToInt(Integer::parseInt).toArray()));
                 System.out.println("Points updated.");
             } else {
                 System.out.println("Incorrect points format");
@@ -113,7 +175,7 @@ public class Main {
             String[] credentials = input.split(" ");
 
             if (UserInputValidator.isValidNewUser(credentials)) {
-                userDao.add(new User(credentials));
+                userDao.add(new User(credentials[0], credentials[1], credentials[2]));
                 count++;
                 System.out.println("The student has been added.");
             }
@@ -121,16 +183,33 @@ public class Main {
 
 
     }
+    private static void printHelp() {
+        System.out.println("Available commands:");
+        for (Command command : Command.values()) {
+            if (command == Command.UNKNOWN || command == Command.EMPTY) {
+                continue;
+            }
+            System.out.printf("%s - %s%n", command.name().replaceAll("_"," "), command.getDescription());
+        }
+    }
 
     public enum Command {
-        ADD_POINTS,
-        ADD_STUDENTS,
-        BACK,
-        EMPTY,
-        EXIT,
-        FIND,
-        LIST,
-        UNKNOWN;
+        ADD_POINTS("Open the add points menu"),
+        ADD_STUDENTS("Open the add students menu"),
+        BACK("Return back to the previous menu"),
+        EMPTY("Debug empty string command"),
+        EXIT("Quit program"),
+        FIND("Find student"),
+        HELP("Print this help message"),
+        LIST("List students"),
+        STATISTICS("Open statistics menu"),
+        UNKNOWN("Debug default error command");
+
+        private final String description;
+
+        Command(String description) {
+            this.description = description;
+        }
 
         public static Command get(String input) {
             if (input.matches("^\\s*$")) {
@@ -142,6 +221,10 @@ public class Main {
                     return UNKNOWN;
                 }
             }
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }
