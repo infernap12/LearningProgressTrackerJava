@@ -5,8 +5,7 @@ import tracker.Model.User;
 import java.util.*;
 
 public class HashMapUserDao extends AbstractHashMapDao<User> implements IUserDao {
-    private ISubmissionDao submissionDao;
-    Map<Integer, User> users = super.store;
+      final Map<Integer, User> users = super.store;
 
 
 //    private final Map<Integer, User> users = new HashMap<>();
@@ -36,7 +35,6 @@ public class HashMapUserDao extends AbstractHashMapDao<User> implements IUserDao
 
     @Override
     public void setSubmissionDao(ISubmissionDao submissionDao) {
-        this.submissionDao = submissionDao;
     }
 
     /*  @Override

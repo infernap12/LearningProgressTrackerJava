@@ -1,8 +1,7 @@
 package tracker;
 
+import tracker.Model.Stats.PlatformStats;
 import tracker.Service.*;
-import tracker.Service.DAO.HashMapSubmissionDao;
-import tracker.Service.DAO.HashMapUserDao;
 import tracker.Service.DAO.ISubmissionDao;
 import tracker.Service.DAO.IUserDao;
 import tracker.Model.Course;
@@ -19,16 +18,10 @@ public class Main {
     public static final boolean IS_IN_MEMORY = true;
     public static final Scanner SCANNER = new Scanner(System.in);
     static DataManager dataManager = new DataManager(IS_IN_MEMORY);
-    static ISubmissionDao submissionDao = new HashMapSubmissionDao();
-    static IUserDao userDao = new HashMapUserDao();
+    static ISubmissionDao submissionDao = dataManager.getSubmissionDao();
+    static IUserDao userDao = dataManager.getUserDao();
 
-    static {
-        submissionDao.setUserDao(userDao);
-        userDao.setSubmissionDao(submissionDao);
-    }
-
-    public static void
-    main(String[] args) {
+    public static void main(String[] args) {
         System.out.println("Learning Progress Tracker");
         mainMenu();
     }
@@ -42,19 +35,10 @@ public class Main {
                     System.out.println("Bye!");
                     System.exit(0);
                 }
-                case ADD_POINTS -> {
-                    addPointsMenu();
-
-                }
-                case ADD_STUDENTS -> {
-                    addMenu();
-                }
-                case BACK -> {
-                    System.out.println("Enter 'exit' to exit the program");
-                }
-                case FIND -> {
-                    findMenu();
-                }
+                case ADD_POINTS -> addPointsMenu();
+                case ADD_STUDENTS -> addMenu();
+                case BACK -> System.out.println("Enter 'exit' to exit the program");
+                case FIND -> findMenu();
                 case LIST -> {
                     List<User> list = userDao.getAll();
                     if (list.isEmpty()) {
@@ -65,12 +49,7 @@ public class Main {
                     }
 
                 }
-                case STATISTICS -> {
-                    statisticsMenu();
-                    System.out.println("Type the name of a course to see details or 'back' to quit");
-
-
-                }
+                case STATISTICS -> statisticsMenu();
                 case HELP -> printHelp();
                 case UNKNOWN -> System.out.println("Unknown command!");
                 case EMPTY -> System.out.println("No input");
@@ -80,45 +59,21 @@ public class Main {
 
     private static void statisticsMenu() {
         System.out.println("Type the name of a course to see details or 'back' to quit");
-//        printStatistics();
+        printPlatformStatistics();
         while (true) {
-            String input = SCANNER.nextLine();
+            String input = SCANNER.nextLine().toUpperCase();
             if (input.equalsIgnoreCase("BACK")) {
                 return;
             }
+            Course course = Course.valueOf(input);
+
         }
     }
 
-//    private static void printStatistics() {
-//        System.out.printf("Most popular: %s%n", submissionDao.getMostPopular());
-//        System.out.printf("Least popular: %s%n", submissionDao.getLeastPopular());
-//        System.out.printf("Highest activity: %s%n", submissionDao.getHighestActivity());
-//        System.out.printf("Lowest activity: %s%n", submissionDao.getLowestActivity());
-//        System.out.printf("Easiest course: %s%n", submissionDao.getEasiestCourse());
-//        System.out.printf("Hardest course: %s%n", submissionDao.getHardestCourse());
-//
-//        //use compar
-//        //test if 0, use all.
-//        String[] array = new String[5];
-//        Stream.of("Most popular: %s",
-//                "Least popular: %s",
-//                "Highest activity: %s",
-//                "Lowest activity: %s",
-//                "Easiest course: %s",
-//                "Hardest course: %s").forEach(x -> x.formatted(y -> {
-//                    switch(x) {
-//                        case "Most popular: %s"
-//                    }
-//        }) ){
-//        });
-//        System.out.printf("""
-//                Most popular: %s
-//                Least popular: %s
-//                Highest activity: %s
-//                Lowest activity: %s
-//                Easiest course: %s
-//                Hardest course: %s%n""", submissionDao.`);
-//    }
+    private static void printPlatformStatistics() {
+        PlatformStats platformStats = dataManager.getPlatformStats();
+        platformStats.print();
+    }
 
     private static void findMenu() {
         System.out.println("Enter an id or 'back' to return");
@@ -155,7 +110,11 @@ public class Main {
                     System.out.printf("No student is found for id=%s%n", arr[0]);
                     continue;
                 }
-                submissionDao.add(new Submission(Arrays.stream(arr).mapToInt(Integer::parseInt).toArray()));
+                int[] points = Arrays.stream(arr)
+                        .skip(1)
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
+                dataManager.addPoints(user.getId(), points);
                 System.out.println("Points updated.");
             } else {
                 System.out.println("Incorrect points format");

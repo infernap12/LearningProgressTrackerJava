@@ -10,10 +10,13 @@ public enum Course implements Storable {
 
     @Override
     public String toString() {
+        if (this == DSA) {
+            return "DSA";
+        } else {
         return (this.name().toLowerCase().charAt(0) - 32) +
                 this.name().substring(1);
 
-    }
+    }}
 
     Course(int maxPoints) {
 

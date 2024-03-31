@@ -1,16 +1,11 @@
 package tracker.Model;
 
-public record Submission(int submissionID, int userID, int java, int DSA, int databases, int spring) implements Storable {
+public record Submission(int id, int userID, int courseID, int points) implements Storable {
 
     @Override
     public int getId() {
-        return submissionID();
+        return id();
     }
 
-    public Submission(int[] array) {
-        this(-1, array[0], array[1], array[2], array[3], array[4]);
-        if (array.length != Course.values().length + 1) {
-            throw new IllegalArgumentException("Array must be the student ID, followed by an int for each course");
-        }
-    }
+
 }
