@@ -2,7 +2,9 @@ package tracker.Service;
 
 import tracker.Model.Course;
 import tracker.Model.Stats.CourseStat;
-import tracker.Model.Stats.PlatformStats;
+import tracker.Model.Stats.CourseStatSummary;
+import tracker.Model.Stats.PlatformStat;
+import tracker.Model.Stats.PlatformStatSummary;
 import tracker.Model.Submission;
 import tracker.Service.DAO.*;
 
@@ -31,23 +33,22 @@ public class DataManager {
         }
     }
 
-    public PlatformStats getPlatformStats() {
-        List<CourseStat> list = submissionDao.getCourseStats(courseDao);
-        System.out.println(list);
+    public PlatformStatSummary getPlatformStats() {
+        List<PlatformStat> list = submissionDao.getPlatformStats(courseDao);
         //look at IntSummaryStatistics, and consider copying it
         //Popularity
 
-        Course[] mostPopular = getCourseStatArray(list, CourseStat.StatType.POPULAR, true);
-        Course[] leastPopular = getCourseStatArray(list, CourseStat.StatType.POPULAR, false);
+        Course[] mostPopular = getCourseStatArray(list, PlatformStat.StatType.POPULAR, true);
+        Course[] leastPopular = getCourseStatArray(list, PlatformStat.StatType.POPULAR, false);
         //Activity
 
-        Course[] highestActivity = getCourseStatArray(list, CourseStat.StatType.ACTIVITY, true);
-        Course[] lowestActivity = getCourseStatArray(list, CourseStat.StatType.ACTIVITY, false);
+        Course[] highestActivity = getCourseStatArray(list, PlatformStat.StatType.ACTIVITY, true);
+        Course[] lowestActivity = getCourseStatArray(list, PlatformStat.StatType.ACTIVITY, false);
 
-        Course[] easiest = getCourseStatArray(list, CourseStat.StatType.DIFFICULTY, true);
-        Course[] hardest = getCourseStatArray(list, CourseStat.StatType.DIFFICULTY, false);
+        Course[] easiest = getCourseStatArray(list, PlatformStat.StatType.DIFFICULTY, true);
+        Course[] hardest = getCourseStatArray(list, PlatformStat.StatType.DIFFICULTY, false);
 
-        return new PlatformStats(mostPopular, leastPopular, highestActivity, lowestActivity, easiest, hardest);
+        return new PlatformStatSummary(mostPopular, leastPopular, highestActivity, lowestActivity, easiest, hardest);
     }
 
 //    private List<CourseStat> getCourseStats() {
@@ -82,7 +83,7 @@ public class DataManager {
     }
 
 
-    private Course[] getCourseStatArray(List<CourseStat> statList, CourseStat.StatType statType, boolean most) {
+    private Course[] getCourseStatArray(List<PlatformStat> statList, PlatformStat.StatType statType, boolean most) {
         IntSummaryStatistics minMax = statList.stream().mapToInt(x -> switch (statType) {
             case POPULAR -> x.enrollments();
             case ACTIVITY -> x.submissionCount();
@@ -90,11 +91,11 @@ public class DataManager {
         }).summaryStatistics();
         int value = most ? minMax.getMax() : minMax.getMin();
 
-        return statList.stream().filter(courseStat -> switch (statType) {
-            case POPULAR -> courseStat.enrollments() == value;
-            case ACTIVITY -> courseStat.submissionCount() == value;
-            case DIFFICULTY -> courseStat.avgPoints() == value;
-        }).map(CourseStat::course).toArray(Course[]::new);
+        return statList.stream().filter(platformStat -> switch (statType) {
+            case POPULAR -> platformStat.enrollments() == value;
+            case ACTIVITY -> platformStat.submissionCount() == value;
+            case DIFFICULTY -> platformStat.avgPoints() == value;
+        }).map(PlatformStat::course).toArray(Course[]::new);
 
 
     }
@@ -154,5 +155,11 @@ public class DataManager {
             submissionDao.add(new Submission(-1, id, i, point));
         }
 
+    }
+
+    public CourseStatSummary getCourseStats(Course course) {
+        List<CourseStat> list = submissionDao.getCourseStats(course);
+
+        return new CourseStatSummary(list);
     }
 }

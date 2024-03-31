@@ -1,11 +1,10 @@
 package tracker.Model.Stats;
 
-import tracker.Model.Course;
+import static java.util.stream.Collectors.joining;
 
-public record CourseStat(Course course, double avgPoints, int submissionCount, int enrollments) {
-    public enum StatType {
-        POPULAR,
-        ACTIVITY,
-        DIFFICULTY;
-    }
+public record CourseStat(int userID, int points, double completionPercentage) {
+
 }
+
+
+

@@ -1,17 +1,16 @@
 package tracker;
 
-import tracker.Model.Stats.PlatformStats;
+import tracker.Model.Stats.CourseStatSummary;
+import tracker.Model.Stats.PlatformStatSummary;
 import tracker.Service.*;
 import tracker.Service.DAO.ISubmissionDao;
 import tracker.Service.DAO.IUserDao;
 import tracker.Model.Course;
-import tracker.Model.Submission;
 import tracker.Model.User;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class Main {
 
@@ -65,14 +64,25 @@ public class Main {
             if (input.equalsIgnoreCase("BACK")) {
                 return;
             }
-            Course course = Course.valueOf(input);
+            Course course = null;
+            try {
+                course = Course.valueOf(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Unknown course.");
+            }
+            printCourseStats(course);
 
         }
     }
 
+    private static void printCourseStats(Course course) {
+        CourseStatSummary courseStatSummary = dataManager.getCourseStats(course);
+        courseStatSummary.print();
+    }
+
     private static void printPlatformStatistics() {
-        PlatformStats platformStats = dataManager.getPlatformStats();
-        platformStats.print();
+        PlatformStatSummary platformStatSummary = dataManager.getPlatformStats();
+        platformStatSummary.print();
     }
 
     private static void findMenu() {

@@ -2,7 +2,8 @@ package tracker.Service.DAO;
 
 import tracker.Model.Course;
 import tracker.Model.Stats.CourseStat;
-import tracker.Model.Stats.PlatformStats;
+import tracker.Model.Stats.PlatformStat;
+import tracker.Model.Stats.PlatformStatSummary;
 import tracker.Model.Submission;
 import tracker.Model.User;
 
@@ -10,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> implements ISubmissionDao {
-    PlatformStats statCache = null;
+    PlatformStatSummary statCache = null;
     IUserDao userDao;
     @Override
     public String getMostPopular() {
@@ -41,8 +42,8 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
             }
 
     @Override
-    public List<CourseStat> getCourseStats(ICourseDao courseDao) {
-        List<CourseStat> list = new ArrayList<>();
+    public List<PlatformStat> getPlatformStats(ICourseDao courseDao) {
+        List<PlatformStat> list = new ArrayList<>();
         Map<Course, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(x -> courseDao.get(x.courseID())));
         for (Map.Entry<Course, List<Submission>> courseSubmissionPair : map.entrySet()) {
             Course course = courseSubmissionPair.getKey();
@@ -58,10 +59,27 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
             }
             avgPoints = pointTotal / count;
             enrollments = userSet.size();
-            list.add(new CourseStat(course, avgPoints, count, enrollments));
+            list.add(new PlatformStat(course, avgPoints, count, enrollments));
         }
         return list;
     }
+    @Override
+    public List<CourseStat> getCourseStats(Course course) {
+        List<CourseStat> list = new ArrayList<>();
+        Map<User, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(x -> userDao.get(x.userID())));
+        for (Map.Entry<User, List<Submission>> userListEntry : map.entrySet()) {
+            User user = userListEntry.getKey();
+            int points = 0;
+            for (Submission submission : userListEntry.getValue()) {
+                points += submission.points();
+            }
+            double percentage = course.MAX_POINTS / points; //test, left off
+            //work percentage
+            list.add(new CourseStat(user.getId(), points, percentage))
+        }
+        return null;
+    }
+
     @Override
     public void setUserDao(IUserDao userDao) {
         this.userDao = userDao;

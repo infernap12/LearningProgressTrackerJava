@@ -2,6 +2,7 @@ package tracker.Service.DAO;
 
 import tracker.Model.Course;
 import tracker.Model.Stats.CourseStat;
+import tracker.Model.Stats.PlatformStat;
 import tracker.Model.Submission;
 import tracker.Model.User;
 
@@ -18,11 +19,14 @@ public interface ISubmissionDao extends IDao<Submission> {
 
     int getEnrollments(Course course);
 
-    List<CourseStat> getCourseStats(ICourseDao courseDao);
+    List<PlatformStat> getPlatformStats(ICourseDao courseDao);
 
     void setUserDao(IUserDao userDao);
 
     int getPoints(User user, Course course);
+
+    List<CourseStat> getCourseStats(Course course);
+
 
     //    record CourseStats(Course course, int enrollments, List<UserStats>)
 
