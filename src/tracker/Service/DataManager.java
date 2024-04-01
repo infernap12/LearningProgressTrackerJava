@@ -159,6 +159,7 @@ public class DataManager {
 
     public CourseStatSummary getCourseStats(Course course) {
         List<CourseStat> list = submissionDao.getCourseStats(course);
+        //what's the point? we're just boxing a list? for a print method?
 
         return new CourseStatSummary(list);
     }

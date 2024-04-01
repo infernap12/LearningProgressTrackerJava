@@ -13,9 +13,33 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-
+    public static final boolean IS_TEST = true;
     public static final boolean IS_IN_MEMORY = true;
-    public static final Scanner SCANNER = new Scanner(System.in);
+    private static final String TEST_TEXT;
+    public static final Scanner SCANNER;
+    static {TEST_TEXT = """
+            add students
+            John Doe johnd@email.net
+            Jane Spark jspark@yahoo.com
+            back
+            list
+            add points
+            0 8 7 7 5
+            0 7 6 9 7
+            0 6 5 5 0
+            1 8 0 8 6
+            1 7 0 0 0
+            1 9 0 0 5
+            back
+            statistics
+            java
+            dsa
+            databases
+            spring
+            back
+            exit""";
+    SCANNER = IS_TEST ? new Scanner(TEST_TEXT) : new Scanner(System.in);
+    }
     static DataManager dataManager = new DataManager(IS_IN_MEMORY);
     static ISubmissionDao submissionDao = dataManager.getSubmissionDao();
     static IUserDao userDao = dataManager.getUserDao();

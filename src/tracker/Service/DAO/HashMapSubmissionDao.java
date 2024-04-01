@@ -44,7 +44,7 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
     @Override
     public List<PlatformStat> getPlatformStats(ICourseDao courseDao) {
         List<PlatformStat> list = new ArrayList<>();
-        Map<Course, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(x -> courseDao.get(x.courseID())));
+        Map<Course, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(x -> x.courseID()));//flight landed
         for (Map.Entry<Course, List<Submission>> courseSubmissionPair : map.entrySet()) {
             Course course = courseSubmissionPair.getKey();
             int count = 0;
@@ -64,7 +64,7 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
         return list;
     }
     @Override
-    public List<CourseStat> getCourseStats(Course course) {
+    public List<CourseStat> getCourseStats(Course course) {// i question i have? better to box? or extend?
         List<CourseStat> list = new ArrayList<>();
         Map<User, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(x -> userDao.get(x.userID())));
         for (Map.Entry<User, List<Submission>> userListEntry : map.entrySet()) {
@@ -73,11 +73,11 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
             for (Submission submission : userListEntry.getValue()) {
                 points += submission.points();
             }
-            double percentage = course.MAX_POINTS / points; //test, left off
+            double percentage = (double) points / course.MAX_POINTS; //test, left off
             //work percentage
-            list.add(new CourseStat(user.getId(), points, percentage))
+            list.add(new CourseStat(user.getId(), points, percentage));
         }
-        return null;
+        return list;
     }
 
     @Override
