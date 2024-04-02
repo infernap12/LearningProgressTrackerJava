@@ -13,10 +13,11 @@ public enum Course implements Storable {
         if (this == DSA) {
             return "DSA";
         } else {
-        return (this.name().toLowerCase().charAt(0) - 32) +
-                this.name().substring(1);
+            return ((char) (this.name().toLowerCase().charAt(0) - 32)) +
+                   this.name().toLowerCase().substring(1);
 
-    }}
+        }
+    }
 
     Course(int maxPoints) {
 

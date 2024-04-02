@@ -17,29 +17,32 @@ public class Main {
     public static final boolean IS_IN_MEMORY = true;
     private static final String TEST_TEXT;
     public static final Scanner SCANNER;
-    static {TEST_TEXT = """
-            add students
-            John Doe johnd@email.net
-            Jane Spark jspark@yahoo.com
-            back
-            list
-            add points
-            0 8 7 7 5
-            0 7 6 9 7
-            0 6 5 5 0
-            1 8 0 8 6
-            1 7 0 0 0
-            1 9 0 0 5
-            back
-            statistics
-            java
-            dsa
-            databases
-            spring
-            back
-            exit""";
-    SCANNER = IS_TEST ? new Scanner(TEST_TEXT) : new Scanner(System.in);
+
+    static {
+        TEST_TEXT = """
+                add students
+                John Doe johnd@email.net
+                Jane Spark jspark@yahoo.com
+                back
+                list
+                add points
+                0 8 7 7 5
+                0 7 6 9 7
+                0 6 5 5 0
+                1 8 0 8 6
+                1 7 0 0 0
+                1 9 0 0 5
+                back
+                statistics
+                java
+                dsa
+                databases
+                spring
+                back
+                exit""";
+        SCANNER = IS_TEST ? new Scanner(TEST_TEXT) : new Scanner(System.in);
     }
+
     static DataManager dataManager = new DataManager(IS_IN_MEMORY);
     static ISubmissionDao submissionDao = dataManager.getSubmissionDao();
     static IUserDao userDao = dataManager.getUserDao();
@@ -139,7 +142,7 @@ public class Main {
             }
             if (UserInputValidator.isValidPoints(input)) {
                 String[] arr = input.split(" ");
-                User user = userDao.get(arr[0]);
+                User user = userDao.get(Integer.parseInt(arr[0]));
                 if (user == null) {
                     System.out.printf("No student is found for id=%s%n", arr[0]);
                     continue;
@@ -176,13 +179,14 @@ public class Main {
 
 
     }
+
     private static void printHelp() {
         System.out.println("Available commands:");
         for (Command command : Command.values()) {
             if (command == Command.UNKNOWN || command == Command.EMPTY) {
                 continue;
             }
-            System.out.printf("%s - %s%n", command.name().replaceAll("_"," "), command.getDescription());
+            System.out.printf("%s - %s%n", command.name().replaceAll("_", " "), command.getDescription());
         }
     }
 

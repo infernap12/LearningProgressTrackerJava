@@ -7,10 +7,7 @@ public final class User implements Storable {
     private final String firstName;
     private final String lastName;
     private final String email;
-    private boolean notifiedJava;
-    private boolean notifiedDataStructures;
-    private boolean notifiedDatabase;
-    private boolean notifiedSpring;
+    private Course[] completedAndNotified;
 
 
     public User(String firstName, String lastName, String email) {
@@ -31,7 +28,8 @@ public final class User implements Storable {
     public String getLastName() {
         return lastName;
     }
-@Override
+
+    @Override
     public int getId() {
         return id;
     }

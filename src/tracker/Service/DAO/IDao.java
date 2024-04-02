@@ -13,6 +13,4 @@ public interface IDao<T> {
     boolean update(T t);
 
     boolean delete(T t);
-
-    T get(String id);
 }

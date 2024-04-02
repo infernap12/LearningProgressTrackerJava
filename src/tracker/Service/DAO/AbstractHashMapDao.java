@@ -16,16 +16,6 @@ public abstract class AbstractHashMapDao<T extends Storable> implements IDao<T> 
     public T get(int id) {
         return store.get(id);
     }
-    @Override
-    public T get(String id) {
-        int intId;
-        try {
-            intId = Integer.parseInt(id);
-        } catch (NumberFormatException e) {
-            return null; // ID must be an int
-        }
-        return get(intId);
-    }
 
     @Override
     public List<T> getAll() {
@@ -35,8 +25,8 @@ public abstract class AbstractHashMapDao<T extends Storable> implements IDao<T> 
 
     @Override
     public boolean update(T t) {
-            T previous = store.put(t.getId(), t);
-            return previous != null;
+        T previous = store.put(t.getId(), t);
+        return previous != null;
     }
 
     public boolean delete(int id) {
