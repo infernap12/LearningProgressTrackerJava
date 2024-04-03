@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static final boolean IS_TEST = true;
+    public static final boolean IS_TEST = false;
     public static final boolean IS_IN_MEMORY = true;
     private static final String TEST_TEXT;
     public static final Scanner SCANNER;
@@ -91,19 +91,20 @@ public class Main {
             if (input.equalsIgnoreCase("BACK")) {
                 return;
             }
-            Course course = null;
+            Course course;
             try {
                 course = Course.valueOf(input);
+                printCourseStats(course);
             } catch (IllegalArgumentException e) {
                 System.out.println("Unknown course.");
             }
-            printCourseStats(course);
 
         }
     }
 
     private static void printCourseStats(Course course) {
         CourseStatSummary courseStatSummary = dataManager.getCourseStats(course);
+        System.out.println(course.toString());
         courseStatSummary.print();
     }
 
@@ -142,7 +143,12 @@ public class Main {
             }
             if (UserInputValidator.isValidPoints(input)) {
                 String[] arr = input.split(" ");
-                User user = userDao.get(Integer.parseInt(arr[0]));
+                User user;
+                try {
+                    user = userDao.get(Integer.parseInt(arr[0]));
+                } catch (NumberFormatException e) {
+                    user = null;
+                }
                 if (user == null) {
                     System.out.printf("No student is found for id=%s%n", arr[0]);
                     continue;

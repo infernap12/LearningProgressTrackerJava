@@ -6,6 +6,8 @@ import tracker.Model.Stats.PlatformStat;
 import tracker.Model.Submission;
 import tracker.Model.User;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,16 +37,23 @@ public class HashMapSubmissionDao extends AbstractHashMapDao<Submission> impleme
     }
 
     @Override
-    public List<CourseStat> getCourseStats(Course course) {// a question I have? better to box a list? or extend a list?
+    public List<CourseStat> getCourseStats(Course course) {// a question I have? better to box a list? or custom class that extends a list?
         List<CourseStat> list = new ArrayList<>();
-        Map<Integer, List<Submission>> map = this.getAll().stream().collect(Collectors.groupingBy(Submission::userID));
+        Map<Integer, List<Submission>> map = this.getAll().stream()
+                .filter(x -> x.courseID() == course.getId())
+                .collect(Collectors.groupingBy(Submission::userID));
+
         for (Map.Entry<Integer, List<Submission>> userListEntry : map.entrySet()) {
             int userID = userListEntry.getKey();
             int points = 0;
             for (Submission submission : userListEntry.getValue()) {
                 points += submission.points();
             }
-            double percentage = (double) points / course.MAX_POINTS; //test, left off
+
+            double percentage = new BigDecimal((double) points / course.MAX_POINTS)
+                    .setScale(3, RoundingMode.HALF_UP)
+                    .scaleByPowerOfTen(2)
+                    .doubleValue();
             //work percentage
             list.add(new CourseStat(userID, points, percentage));
         }

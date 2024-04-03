@@ -9,6 +9,7 @@ import tracker.Model.Submission;
 import tracker.Service.DAO.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("DataFlowIssue")
 //todo remove annotation by adding sqlite implementation
@@ -37,22 +38,23 @@ public class DataManager {
         //look at IntSummaryStatistics, and consider copying it
         //Popularity
 
-        Course[] mostPopular = getCourseStatArray(list, PlatformStat.StatType.POPULAR, true);
-        System.out.println(Arrays.toString(mostPopular));
-        Course[] leastPopular = getCourseStatArray(list, PlatformStat.StatType.POPULAR, false);
-        //Activity
+        List<Course> mostPopular = getPlatformStatList(list, PlatformStat.StatType.POPULAR, true); //refactor to use lists
+        // least popular as list, .removeAll(mostPopular)
+        List<Course> leastPopular = getPlatformStatList(list, PlatformStat.StatType.POPULAR, false);
+        leastPopular.removeAll(mostPopular);
 
-        Course[] highestActivity = getCourseStatArray(list, PlatformStat.StatType.ACTIVITY, true);
-        Course[] lowestActivity = getCourseStatArray(list, PlatformStat.StatType.ACTIVITY, false);
+        List<Course> highestActivity = getPlatformStatList(list, PlatformStat.StatType.ACTIVITY, true);
+        List<Course> lowestActivity = getPlatformStatList(list, PlatformStat.StatType.ACTIVITY, false);
+        lowestActivity.removeAll(highestActivity);
 
-        Course[] easiest = getCourseStatArray(list, PlatformStat.StatType.DIFFICULTY, true);
-        Course[] hardest = getCourseStatArray(list, PlatformStat.StatType.DIFFICULTY, false);
-
+        List<Course> easiest = getPlatformStatList(list, PlatformStat.StatType.DIFFICULTY, true);
+        List<Course> hardest = getPlatformStatList(list, PlatformStat.StatType.DIFFICULTY, false);
+        hardest.removeAll(easiest);
         return new PlatformStatSummary(mostPopular, leastPopular, highestActivity, lowestActivity, easiest, hardest);
     }
 
 
-    private Course[] getCourseStatArray(List<PlatformStat> platformStatList, PlatformStat.StatType statType, boolean most) {
+    private List<Course> getPlatformStatList(List<PlatformStat> platformStatList, PlatformStat.StatType statType, boolean most) {
         IntSummaryStatistics minMax = platformStatList.stream()
                 .mapToInt(x -> switch (statType) {
                     case POPULAR -> x.enrollments();
@@ -70,7 +72,7 @@ public class DataManager {
                 })
                 .map(PlatformStat::courseID)
                 .map(courseDao::get)
-                .toArray(Course[]::new);
+                .collect(Collectors.toCollection(ArrayList::new));
 
 
     }
@@ -83,6 +85,7 @@ public class DataManager {
         return userDao;
     }
 
+    @SuppressWarnings("unused")
     public ICourseDao getCourseDao() {
         return courseDao;
     }
@@ -101,6 +104,7 @@ public class DataManager {
 
     public CourseStatSummary getCourseStats(Course course) {
         List<CourseStat> list = submissionDao.getCourseStats(course);
+        list.sort(CourseStat::compareTo);
         //what's the point? we're just boxing a list? for a print method?
 
         return new CourseStatSummary(list);

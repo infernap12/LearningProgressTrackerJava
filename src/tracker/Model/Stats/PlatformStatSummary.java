@@ -2,12 +2,12 @@ package tracker.Model.Stats;
 
 import tracker.Model.Course;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public record PlatformStatSummary(Course[] mostPopular, Course[] leastPopular,
-                                  Course[] highestActivity, Course[] lowestActivity,
-                                  Course[] easiestCourse, Course[] hardestCourse) {
+public record PlatformStatSummary(List<Course> mostPopular, List<Course> leastPopular,
+                                  List<Course> highestActivity, List<Course> lowestActivity,
+                                  List<Course> easiestCourse, List<Course> hardestCourse) {
     public void print() {
         System.out.println("Most Popular: " + stringify(mostPopular));
         System.out.println("Least Popular: " + stringify(leastPopular));
@@ -17,10 +17,10 @@ public record PlatformStatSummary(Course[] mostPopular, Course[] leastPopular,
         System.out.println("Hardest Course: " + stringify(hardestCourse));
     }
 
-    String stringify(Course[] courses) {
+    String stringify(List<Course> courses) {
         String output;
-        if (courses.length > 0) {
-            output = Arrays.stream(courses)
+        if (!courses.isEmpty()) {
+            output = courses.stream()
                     .map(Course::toString)
                     .collect(Collectors.joining(", "));
         } else {
