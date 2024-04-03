@@ -1,5 +1,7 @@
 package tracker.Model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public final class User implements Storable {
@@ -7,7 +9,16 @@ public final class User implements Storable {
     private final String firstName;
     private final String lastName;
     private final String email;
-    private Course[] completedAndNotified;
+
+    public List<Course> getCompletedAndNotified() {
+        return completedAndNotified;
+    }
+
+    public void notified(Course course) {
+        completedAndNotified.add(course);
+    }
+
+    private final List<Course> completedAndNotified;
 
 
     public User(String firstName, String lastName, String email) {
@@ -19,6 +30,7 @@ public final class User implements Storable {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.completedAndNotified = new ArrayList<>();
     }
 
     public String getFirstName() {
@@ -49,5 +61,9 @@ public final class User implements Storable {
     @Override
     public int hashCode() {
         return Objects.hash(id, firstName, lastName, email);
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 }

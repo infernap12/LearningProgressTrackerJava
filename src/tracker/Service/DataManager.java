@@ -6,6 +6,7 @@ import tracker.Model.Stats.CourseStatSummary;
 import tracker.Model.Stats.PlatformStat;
 import tracker.Model.Stats.PlatformStatSummary;
 import tracker.Model.Submission;
+import tracker.Model.User;
 import tracker.Service.DAO.*;
 
 import java.util.*;
@@ -108,5 +109,27 @@ public class DataManager {
         //what's the point? we're just boxing a list? for a print method?
 
         return new CourseStatSummary(list);
+    }
+
+    public Map<User, List<Course>> getNotifiableUsers() {
+        List<User> users = userDao.getAll();
+        Map<User, List<Course>> notifiableUsers = new HashMap<>();
+        for (User user : users) {
+            List<Course> courses = courseDao.getAll();
+            courses.removeAll(user.getCompletedAndNotified());
+            List<Course> maxPointsCourses = new ArrayList<>();
+            for (Course course : courses) {
+                int points = submissionDao.getPoints(user, course);
+                if (points >= course.MAX_POINTS) {
+                    maxPointsCourses.add(course);
+                }
+            }
+            if (!maxPointsCourses.isEmpty()) {
+                notifiableUsers.put(user, maxPointsCourses);
+            }
+        }
+
+        //need to return a map of Users, with lists of courses for which they have hit max points, that aren't already notified.
+        return notifiableUsers;
     }
 }

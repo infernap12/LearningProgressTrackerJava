@@ -10,6 +10,7 @@ import tracker.Model.User;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -75,12 +76,28 @@ public class Main {
                     }
 
                 }
+                case NOTIFY -> sendNotifications();
                 case STATISTICS -> statisticsMenu();
                 case HELP -> printHelp();
                 case UNKNOWN -> System.out.println("Unknown command!");
                 case EMPTY -> System.out.println("No input");
             }
         }
+    }
+
+    private static void sendNotifications() {
+        Map<User, List<Course>> users = dataManager.getNotifiableUsers();
+        for (Map.Entry<User, List<Course>> entry : users.entrySet()) {
+            for (Course course : entry.getValue()) {
+                User user = entry.getKey();
+                System.out.printf("""
+                        To: %s
+                        Re: Your Learning Progress
+                        Hello, %s! You have accomplished our %s course!%n""", user.getEmail(), user.getFullName(), course.toString());
+                user.notified(course);
+            }
+        }
+        System.out.printf("Total %d students have been notified.%n", users.size());
     }
 
     private static void statisticsMenu() {
@@ -205,6 +222,7 @@ public class Main {
         FIND("Find student"),
         HELP("Print this help message"),
         LIST("List students"),
+        NOTIFY("Send completion notifications"),
         STATISTICS("Open statistics menu"),
         UNKNOWN("Debug default error command");
 
