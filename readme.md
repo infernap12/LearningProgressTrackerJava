@@ -12,3 +12,10 @@
 * Implement a command-line interface (CLI) to allow users to input commands and receive responses.
 * Ensure the program's commands are case-insensitive to enhance user experience.
 * Provide informative responses to user commands to
+
+
+## Stretch Goals
+
+* Implement a SQL database
+* Actually write unit tests
+* UI?
