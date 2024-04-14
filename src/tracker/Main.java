@@ -1,3 +1,4 @@
+// https://github.com/infernap12/LearningProgressTrackerJava/ for full project with all packages
 package tracker;
 
 import tracker.Model.Stats.CourseStatSummary;
@@ -55,7 +56,13 @@ public class Main {
 
     private static void mainMenu() {
         while (true) {//menu
-            Command command = Command.get(SCANNER.nextLine());
+            Command command;
+            try {
+                command = Command.get(SCANNER.nextLine());
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
 
             switch (command) {
                 case EXIT -> {
@@ -79,8 +86,6 @@ public class Main {
                 case NOTIFY -> sendNotifications();
                 case STATISTICS -> statisticsMenu();
                 case HELP -> printHelp();
-                case UNKNOWN -> System.out.println("Unknown command!");
-                case EMPTY -> System.out.println("No input");
             }
         }
     }
@@ -206,10 +211,9 @@ public class Main {
     private static void printHelp() {
         System.out.println("Available commands:");
         for (Command command : Command.values()) {
-            if (command == Command.UNKNOWN || command == Command.EMPTY) {
-                continue;
-            }
-            System.out.printf("%s - %s%n", command.name().replaceAll("_", " "), command.getDescription());
+            System.out.printf("%s - %s%n",
+                    command.name().replaceAll("_", " "),
+                    command.getDescription());
         }
     }
 
@@ -217,14 +221,14 @@ public class Main {
         ADD_POINTS("Open the add points menu"),
         ADD_STUDENTS("Open the add students menu"),
         BACK("Return back to the previous menu"),
-        EMPTY("Debug empty string command"),
+        //EMPTY("Debug empty string command"),
         EXIT("Quit program"),
         FIND("Find student"),
         HELP("Print this help message"),
         LIST("List students"),
         NOTIFY("Send completion notifications"),
-        STATISTICS("Open statistics menu"),
-        UNKNOWN("Debug default error command");
+        STATISTICS("Open statistics menu");
+        //UNKNOWN("Debug default error command");
 
         private final String description;
 
@@ -232,14 +236,14 @@ public class Main {
             this.description = description;
         }
 
-        public static Command get(String input) {
-            if (input.matches("^\\s*$")) {
-                return EMPTY;
+        public static Command get(String input) throws IllegalArgumentException {
+            if (input.isBlank()) {
+                throw new IllegalArgumentException("No input");
             } else {
                 try {
                     return Command.valueOf(input.toUpperCase().trim().replaceAll(" ", "_"));
                 } catch (IllegalArgumentException e) {
-                    return UNKNOWN;
+                    throw new IllegalArgumentException("Unknown course.", e);
                 }
             }
         }
